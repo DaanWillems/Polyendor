@@ -6,6 +6,7 @@ import java.util.ArrayList;
 
 import org.joml.Intersectionf;
 import org.joml.Matrix4f;
+import org.joml.Vector2d;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
@@ -36,14 +37,46 @@ public class Selector {
 	IntBuffer viewportBuffer = BufferUtils.createIntBuffer(4);
 	int[] viewport = new int[4];
 	private Vector3f dir;
+    private Matrix4f invProjectionMatrix;
+    
+    private Matrix4f invViewMatrix;
+
+    private Vector3f mouseDir;
+    
+    private Vector4f tmpVec;
 	
 	public Selector() {
 		dir = new Vector3f();
+        invProjectionMatrix = new Matrix4f();
+        invViewMatrix = new Matrix4f();
+        mouseDir = new Vector3f();
+        tmpVec = new Vector4f();
 	}
 	
-	public void selectVertice(Camera camera, Scene s) {
-        dir = camera.getViewMatrix().positiveZ(dir).negate();
-        SelectVertice(camera.getPosition(), s, dir);
+	public void selectVertice(Camera camera, Scene s, Display window, Vector2d mousePos, Matrix4f projectionMatrix) {
+		 // Transform mouse coordinates into normalized spaze [-1, 1]
+        int wdwWitdh = window.width;
+        int wdwHeight = window.height;
+        
+        float x = (float)(2 * mousePos.x) / (float)wdwWitdh - 1.0f;
+        float y = 1.0f - (float)(2 * mousePos.y) / (float)wdwHeight;
+        float z = -1.0f;
+
+        invProjectionMatrix.set(projectionMatrix);
+        invProjectionMatrix.invert();
+        
+        tmpVec.set(x, y, z, 1.0f);
+        tmpVec.mul(invProjectionMatrix);
+        tmpVec.z = -1.0f;
+        tmpVec.w = 0.0f;
+        
+        Matrix4f viewMatrix = camera.getViewMatrix();
+        invViewMatrix.set(viewMatrix);
+        invViewMatrix.invert();
+        tmpVec.mul(invViewMatrix);
+        
+        mouseDir.set(tmpVec.x, tmpVec.y, tmpVec.z);
+        SelectVertice(camera.getPosition(), s, mouseDir);
 	}
 	
 	public void SelectVertice(Vector3f center, Scene s, Vector3f dir) {

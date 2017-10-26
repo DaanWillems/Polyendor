@@ -33,7 +33,7 @@ public class Renderer {
     private final float Z_FAR = 1000.f;
 	
 	private StaticShader shader;
-	private Matrix4f projectionMatrix;
+	public Matrix4f projectionMatrix;
 	private Matrix4f worldMatrix;
 	public Camera camera;
 	public Scene scene;
