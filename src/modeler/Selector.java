@@ -91,7 +91,6 @@ public class Selector {
         
         for(Mesh m : meshes) {
             for (Vertice v : m.vertices) {
-                v.selected = false;
                 min.set(v.position);
                 max.set(v.position);
                 min.add(-0.2f, -0.2f, -0.2f);
@@ -99,16 +98,17 @@ public class Selector {
                 if (Intersectionf.intersectRayAab(center, dir, min, max, nearFar) && nearFar.x < closestDistance) {
                     closestDistance = nearFar.x;
                     sv = v;
-                    m.bind();
                 }
             }	
         }
 
         if (sv != null) {
-            sv.position.x += 0.01;
-            for(Mesh m : meshes) {
-            	m.bind();
-            }
+        	sv.selected = true;
+        	sv.position.x += 0.01f;
+        	for(Mesh m : meshes) {
+        		m.bind();
+        	}
+        	System.out.println("selected");
         }
 	}
 }

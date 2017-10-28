@@ -54,9 +54,7 @@ public class Display {
 		glfwSwapInterval(1);
 		GL.createCapabilities();
 		glfwShowWindow(windowID);
-		glEnable(GL_DEPTH_TEST);
-		
-		
+		glEnable(GL_DEPTH_TEST);		
 	}
 	
 	public void updateDisplay() {

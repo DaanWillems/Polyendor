@@ -12,7 +12,9 @@ import java.util.ArrayList;
 
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.lwjgl.opengl.GL30;
 
+import shaders.StaticShader;
 import util.Utils;
 
 public class Mesh {
@@ -23,15 +25,16 @@ public class Mesh {
 	public int vaoID;
 	private Matrix4f worldMatrix;
 	
-	private int xPos;
-	private int yPos;
-	private int zPos;
+	private float xPos;
+	private float yPos;
+	private float zPos;
 	
 	private float scale;
 	private float xRotation;
 	private float yRotation;
 	private float zRotation;
 	public boolean selected;
+	public boolean editMode;
 	public Vector3f position;
 	
 	private ArrayList<Integer> vboList;
@@ -114,10 +117,29 @@ public class Mesh {
 		//Add vertices
 		int vboID = glGenBuffers();
 		vboList.add(vboID);
-		FloatBuffer buffer = Utils.storeDataInFloatBuffer(transformVertices(vertices));
+		float[] transformedVertices = transformVertices(vertices);
+		FloatBuffer buffer = Utils.storeDataInFloatBuffer(transformedVertices);
 		glBindBuffer(GL_ARRAY_BUFFER, vboID);
-		glBufferData(GL_ARRAY_BUFFER, buffer, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, buffer, GL_DYNAMIC_DRAW);
 		glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
+		
+		vboID = glGenBuffers();
+		vboList.add(vboID);
+		int[] selected = new int[vertices.size()];
+		int i = 0;
+		for(Vertice v : vertices) {
+			if(v.selected) {
+				selected[i] = 1;
+			} else {
+				selected[i] = 0;
+			}
+			i++;
+		}
+		vboID = glGenBuffers();
+		vboList.add(vboID);
+        glBindBuffer(GL_ARRAY_BUFFER, vboID);
+        glBufferData(GL_ARRAY_BUFFER, selected, GL_STATIC_DRAW);
+        glVertexAttribIPointer(1, 1, GL_INT, 0, 0);
 
 		if(indices != null) {
 			vboID = glGenBuffers();
@@ -140,17 +162,35 @@ public class Mesh {
 		this.scale = scale;
 	}
 	
-	public void render() {
+	public void render(StaticShader shader) {
 		glBindVertexArray(vaoID);
 		glEnableVertexAttribArray(0);
-		
+		glEnableVertexAttribArray(1);
+		shader.setUniform("worldMatrix", getWorldMatrix());
+		shader.setUniform("polygon", 0);
+
 		if(indices != null) {
+			if(!editMode) {
+				shader.setUniform("polygon", 1);
+				glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+				glDrawElements(GL_TRIANGLES, getVertexCount(), GL_UNSIGNED_INT, 0);
+				glPolygonMode( GL_FRONT_AND_BACK, GL_FILL);
+				shader.setUniform("polygon", 0);
+			}
 			glDrawElements(GL_TRIANGLES, getVertexCount(), GL_UNSIGNED_INT, 0);
 		} else {
-			glDrawArrays(GL_TRIANGLES, 0, getVertexCount());
+			if(editMode) {
+				shader.setUniform("polygon", 1);
+				glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+				glDrawArrays(GL_TRIANGLE_STRIP, 0, getVertexCount());
+				glPolygonMode( GL_FRONT_AND_BACK, GL_FILL);
+				shader.setUniform("polygon", 0);
+			}
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, getVertexCount());
 		}
 		
 	    glDisableVertexAttribArray(0);
+	    glDisableVertexAttribArray(1);
 	    glBindVertexArray(0);
 	}
 	

@@ -53,7 +53,7 @@ public class Renderer {
 			shader.createUniform("projectionMatrix");
 			shader.createUniform("worldMatrix");
 			shader.createUniform("viewMatrix");
-
+			shader.createUniform("polygon");
 		} catch (Exception e) {
 			System.out.println("Failed to set uniform");
 			e.printStackTrace();
@@ -67,14 +67,13 @@ public class Renderer {
 	
 	public void Render() {
 		shader.start();
-		glClearColor(0, 0, 0, 0);
+		glClearColor(0.3f, 0.3f, 0.3f, 1);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         
 		for(Mesh m : scene.meshes) {
-			shader.setUniform("worldMatrix", m.getWorldMatrix());
 			shader.setUniform("projectionMatrix", projectionMatrix);
 			shader.setUniform("viewMatrix", camera.getViewMatrix());
-			m.render();
+			m.render(shader);
 		}
 		
 		i++;

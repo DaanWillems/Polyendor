@@ -108,5 +108,9 @@ public abstract class ShaderProgram {
 		glUniform3f(uniforms.get(uniformName), value.x, value.y, value.z);
 	}
 	
+	public void setUniform(String uniformName, int b) {
+		glUniform1f(uniforms.get(uniformName), b);
+	}
+	
 	
 }
