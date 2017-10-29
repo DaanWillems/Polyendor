@@ -81,6 +81,9 @@ public class OBJLoader {
         indicesArr = indices.stream().mapToInt((Integer v) -> v).toArray();
      //   Mesh mesh = new Mesh(posArr, textCoordArr, normArr, indicesArr);
         Mesh m = new Mesh(0, 0, 0, posArr);
+//        System.out.println("indices: "+indicesArr.length);
+//        System.out.println("vertices: "+posArr.length/3);
+//        System.out.println("texture: "+textCoordArr.length/2);
         m.indices = indicesArr;
 		m.setScale(1f);
 		m.setRotation(0, 0, 0);

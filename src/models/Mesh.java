@@ -29,6 +29,10 @@ public class Mesh {
 	private float yPos;
 	private float zPos;
 	
+	private float absXPos;
+	private float absYPos;
+	private float absZPos;
+	
 	private float scale;
 	private float xRotation;
 	private float yRotation;
@@ -43,12 +47,17 @@ public class Mesh {
 		xPos = x;
 		yPos = y;
 		zPos = z;
+		
 		position = new Vector3f(x, y, z);
 		selected = false;
 		
 		xRotation = 0f;
 		yRotation = 0f;
 		zRotation = 0f;
+		
+		absXPos = 0;
+		absYPos = 0;
+		absZPos = 0;
 		
 		this.vertices = transformVertices(vertices);
 		
@@ -60,6 +69,9 @@ public class Mesh {
 	
     public Vector3f getPosition() {
         return new Vector3f(xPos, yPos, zPos);
+    }
+    public Vector3f getAbsolutePosition() {
+        return new Vector3f(absXPos, absYPos, absZPos);
     }
 	
     public float getScale() {
@@ -121,25 +133,7 @@ public class Mesh {
 		FloatBuffer buffer = Utils.storeDataInFloatBuffer(transformedVertices);
 		glBindBuffer(GL_ARRAY_BUFFER, vboID);
 		glBufferData(GL_ARRAY_BUFFER, buffer, GL_DYNAMIC_DRAW);
-		glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);
-		
-		vboID = glGenBuffers();
-		vboList.add(vboID);
-		int[] selected = new int[vertices.size()];
-		int i = 0;
-		for(Vertice v : vertices) {
-			if(v.selected) {
-				selected[i] = 1;
-			} else {
-				selected[i] = 0;
-			}
-			i++;
-		}
-		vboID = glGenBuffers();
-		vboList.add(vboID);
-        glBindBuffer(GL_ARRAY_BUFFER, vboID);
-        glBufferData(GL_ARRAY_BUFFER, selected, GL_STATIC_DRAW);
-        glVertexAttribIPointer(1, 1, GL_INT, 0, 0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, false, 0, 0);                           
 
 		if(indices != null) {
 			vboID = glGenBuffers();
@@ -165,12 +159,16 @@ public class Mesh {
 	public void render(StaticShader shader) {
 		glBindVertexArray(vaoID);
 		glEnableVertexAttribArray(0);
-		glEnableVertexAttribArray(1);
 		shader.setUniform("worldMatrix", getWorldMatrix());
 		shader.setUniform("polygon", 0);
+		shader.setUniform("colour", new Vector3f(0.6f, 0.6f, 0.6f));
 
+		if(selected) {
+			shader.setUniform("colour", new Vector3f(0.1f, 0.7f, 0.1f));
+		}
+		
 		if(indices != null) {
-			if(!editMode) {
+			if(editMode) {
 				shader.setUniform("polygon", 1);
 				glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
 				glDrawElements(GL_TRIANGLES, getVertexCount(), GL_UNSIGNED_INT, 0);
@@ -182,15 +180,14 @@ public class Mesh {
 			if(editMode) {
 				shader.setUniform("polygon", 1);
 				glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-				glDrawArrays(GL_TRIANGLE_STRIP, 0, getVertexCount());
+				glDrawArrays(GL_TRIANGLES, 0, getVertexCount());
 				glPolygonMode( GL_FRONT_AND_BACK, GL_FILL);
 				shader.setUniform("polygon", 0);
 			}
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, getVertexCount());
 		}
-		
+				
 	    glDisableVertexAttribArray(0);
-	    glDisableVertexAttribArray(1);
 	    glBindVertexArray(0);
 	}
 	
@@ -200,6 +197,9 @@ public class Mesh {
 			v.position.y += y;
 			v.position.z += z;
 		}
+		absXPos += x;
+		absYPos += y;
+		absZPos += z;
 		bind();
 	}
 	

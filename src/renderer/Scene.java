@@ -6,33 +6,31 @@ import models.Mesh;
 
 public class Scene {
 	
+	public Mesh selectedMesh;
 	public ArrayList<Mesh> meshes;
 	
 	public Scene() {
-		meshes = new ArrayList<Mesh>();
+		meshes = new ArrayList<>();
 	}
 
 	public void moveSelectedItems(float x, float y, float z) {
-		for(Mesh m : meshes) {
-			if(m.selected) {
-				m.move(x, y, z);
-			}
+		selectedMesh.move(x, y, z);
+	}
+
+	public void unSelect() {
+		if(selectedMesh != null) {
+			selectedMesh.selected = false;
+			selectedMesh = null;
 		}
 	}
 
-	public void unselectAll() {
-		for(Mesh m : meshes) {
-			m.selected = false;
-		}
+	public Mesh getSelectedMesh() {
+		return selectedMesh;
 	}
-	
-	public ArrayList<Mesh> getSelectedMeshes() {
-		ArrayList<Mesh> selectedMeshes = new ArrayList<>();
-		for(Mesh m : meshes) {
-			if(m.selected) {
-				selectedMeshes.add(m);
-			}
-		}
-		return selectedMeshes;
+
+	public void setSelectedMesh(Mesh m) {
+		m.selected = true;
+		unSelect();
+		selectedMesh = m;
 	}
 }

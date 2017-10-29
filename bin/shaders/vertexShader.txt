@@ -1,16 +1,12 @@
 #version 330
 
 layout (location=0) in vec3 position;
-layout (location=1) in int selected;
 
 uniform mat4 projectionMatrix;
 uniform mat4 worldMatrix;
 uniform mat4 viewMatrix;
 
-out int exSelected;
-
 void main()
 {
     gl_Position = projectionMatrix * viewMatrix * worldMatrix * vec4(position, 1.0);
-    exSelected = selected;
 }

@@ -26,6 +26,7 @@ public class Main {
 	static Renderer r;
 	static Scene scene;
 	private static MouseInput mouseInput;
+	public static State State;
 	
 	public static void main(String[] args) {
 		mouseInput = new MouseInput();
@@ -33,7 +34,7 @@ public class Main {
 		d = new Display(HEIGHT, WIDTH);
 		r = new Renderer(HEIGHT, WIDTH, scene);
 		Input input = new Input(d, scene, r, mouseInput);
-
+		State = State.selectMode;
 		mouseInput.init(d);
 		while(!d.shouldClose()) {
 			d.updateDisplay();
@@ -43,5 +44,5 @@ public class Main {
 	}
 	
 
-
 }
+

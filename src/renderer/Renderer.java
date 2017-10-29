@@ -42,7 +42,6 @@ public class Renderer {
 		shader = new StaticShader();
 		
 		Plane p = new Plane(0, 0 ,-3);
-		p.selected = true;
 		this.scene = scene;
 		scene.meshes.add(p);
 		camera = new Camera();
@@ -54,6 +53,7 @@ public class Renderer {
 			shader.createUniform("worldMatrix");
 			shader.createUniform("viewMatrix");
 			shader.createUniform("polygon");
+			shader.createUniform("colour");
 		} catch (Exception e) {
 			System.out.println("Failed to set uniform");
 			e.printStackTrace();

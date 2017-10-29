@@ -13,6 +13,8 @@ import org.joml.Vector4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 
+import main.Main;
+import main.State;
 import models.Mesh;
 import models.Vertice;
 import renderer.Camera;
@@ -83,13 +85,14 @@ public class Selector {
 	    Vector3f max = new Vector3f();
 	    Vector3f min = new Vector3f();
 	    Vector2f nearFar = new Vector2f();
-		ArrayList<Mesh> meshes = s.getSelectedMeshes();
 		
         float closestDistance = Float.POSITIVE_INFINITY;
-        
-        Vertice sv = null;
-        
-        for(Mesh m : meshes) {
+                
+        if(Main.State == State.editMode) {
+            Vertice sv = null;
+        	
+            Mesh m = s.getSelectedMesh();
+            
             for (Vertice v : m.vertices) {
                 min.set(v.position);
                 max.set(v.position);
@@ -100,15 +103,40 @@ public class Selector {
                     sv = v;
                 }
             }	
-        }
+	        
+	        if (sv != null) {
+	        	sv.selected = true;
+	        	sv.position.x += 0.01f;
+	        	m.bind();
+	        }
+        } else if(Main.State == State.selectMode) {
+        	   Mesh selectedMesh = null;
+           	
+               Mesh mesh = s.getSelectedMesh();
+               
+               for (Mesh m : s.meshes) {
+            	   min.set(m.getAbsolutePosition());
+                   max.set(m.getAbsolutePosition());
+                   min.add(-m.getScale(), -m.getScale(), -m.getScale());
+                   max.add(m.getScale(), m.getScale(), m.getScale());
+                   if (Intersectionf.intersectRayAab(center, dir, min, max, nearFar) && nearFar.x < closestDistance) {
+                	   
+                	   System.out.println(m.getAbsolutePosition().x);
+                	   System.out.println(m.getAbsolutePosition().y);
+                	   System.out.println(m.getAbsolutePosition().z);
+                	   System.out.println("-------");
+                	   
+                       closestDistance = nearFar.x;
+                       selectedMesh = m;
+                   }
+               }	
+   	        
+   	        if (selectedMesh != null) {
+   	        	if(s.selectedMesh != selectedMesh) {
+   	   	        	s.setSelectedMesh(selectedMesh);
 
-        if (sv != null) {
-        	sv.selected = true;
-        	sv.position.x += 0.01f;
-        	for(Mesh m : meshes) {
-        		m.bind();
-        	}
-        	System.out.println("selected");
+   	        	}
+   	        }
         }
 	}
 }

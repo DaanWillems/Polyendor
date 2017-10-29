@@ -12,10 +12,13 @@ import static org.lwjgl.glfw.GLFW.GLFW_KEY_SPACE;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_U;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_UP;
 import static org.lwjgl.glfw.GLFW.GLFW_KEY_W;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_TAB;
 
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
+import main.Main;
+import main.State;
 import models.Mesh;
 import models.OBJLoader;
 import renderer.Display;
@@ -59,16 +62,25 @@ public class Input {
 	    }
 	    if (d.isKeyPressed(GLFW_KEY_Q)) {
 			try {
-				Mesh newMesh = OBJLoader.loadMesh("/models/cube.obj");
+				Mesh newMesh = OBJLoader.loadMesh("/models/cube2.obj");
 				newMesh.bind();
-				scene.unselectAll();
-				newMesh.selected = true;
+				scene.unSelect();
 				r.scene.meshes.add(newMesh);
+				r.scene.setSelectedMesh(newMesh);
 			}
 			catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+	    }
+	    if(d.isKeyPressed(GLFW_KEY_TAB)) {
+	    	if(!scene.getSelectedMesh().editMode) {
+		    	Main.State = State.editMode;
+		    	scene.getSelectedMesh().editMode = true;
+	    	} else {
+		    	Main.State = State.selectMode;
+		    	scene.getSelectedMesh().editMode = false;
+	    	}
 	    }
 	    if(d.isKeyPressed(GLFW_KEY_LEFT)) {
 	    	scene.moveSelectedItems(-0.05f, 0f, 0f);
